@@ -1,6 +1,6 @@
 module Game.MatrixGame exposing (..)
 
--- Coded by Jacob Armstrong
+-- Coded by Jacob Armstrong; level design by Lu Yan
 
 -- MacCASOutreach imports
 import GraphicSVG exposing (..)
