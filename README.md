@@ -14,12 +14,12 @@ Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armst
 - Contains a rudimentary timer score system to allow the user to note how long they take to complete each level, while encouraging them to return to prior cleared stages to improve their time and review past concepts
 
 ## Current Bugs
-- Best time scores are not displayed properly on the individual level select screens. The score values, however, are still registered and appear on the top taskbar during gameplay when in a level.
-- Generated HTML files from the source code lag slightly when navigating through the level select menus.
+- [ ] Best time scores are not displayed properly on the individual level select screens. The score values, however, are still registered and appear on the top taskbar during gameplay when in a level.
+- [ ] Generated HTML files from the source code lag slightly when navigating through the level select menus.
 
 ## Required Dependencies
-- [ ] Elm (get it [here](https://guide.elm-lang.org/install/elm.html)!)
-- [ ] MacCASOutreach's GraphicSVG v7.2.0 \
+- Elm (get it [here](https://guide.elm-lang.org/install/elm.html)!)
+- MacCASOutreach's GraphicSVG v7.2.0 \
   (run `elm install MacCASOutreach/graphicsvg` in terminal)
 
 ## Clone Repo
