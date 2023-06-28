@@ -1,5 +1,7 @@
 module MenuWin.LvlPackSelect exposing (..)
 
+-- Coded by Alex Chen & Loic Sinclair
+
 import Html exposing (img, div, span)
 import Html.Attributes exposing (style, width, src, height)
 import Tuple exposing (first, second)
