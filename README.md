@@ -9,8 +9,8 @@ Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armst
 <!--  Note to other collaborators - feel free to link in your Github profiles here if you'd like or edit anything here if I accidentally mispelled your name -->
 
 ## Features
-- Contains three level packs of varying difficulties—Easy, Medium, and Hard—each either focused on introducing the player to a new matrix transformation or testing their knowledge through a combination of concepts
-- Includes Info and About submenus to refresh the player's knowledge on necessary linear algebra knowledge while acquainting them with the controls and purpose behind the program
+- Contains three level packs of varying difficulties—Easy, Medium, and Hard—each focused on either introducing the player to a new matrix transformation or testing their knowledge through a combination of concepts
+- Includes *Info* and *About* submenus to refresh the player's knowledge on necessary linear algebra knowledge while acquainting them with the controls and purpose behind the program
 - Contains a rudimentary timer score system to allow the user to note how long they take to complete each level, while encouraging them to return to prior cleared stages to improve their time and review past concepts
 
 ## Current Bugs:
