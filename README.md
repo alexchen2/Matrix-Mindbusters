@@ -27,7 +27,7 @@ Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armst
 git clone https://github.com/alexchen2/Matrix-Mindbusters.git
 ```
 
-## Compile Instructions
+## Compile App
 Windows:
 ```bash
 elm make .\src\MainWin.elm
