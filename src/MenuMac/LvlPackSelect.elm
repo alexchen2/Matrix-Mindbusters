@@ -1,7 +1,9 @@
 module MenuMac.LvlPackSelect exposing (..)
 
+import Html exposing (img, div, span)
+import Html.Attributes exposing (style, width, src, height)
 import Tuple exposing (first, second)
-import List exposing (drop, head, take, repeat, any, all)
+import List exposing (any, all, take, drop, head, repeat)
 import String exposing (split)
 
 -- MacCASOutreach imports
@@ -56,8 +58,17 @@ titleFont = "Arial"
 mediumStartIdx = 11
 hardStartIdx = 15
 
+{- ** Miscellanous Functions ** -}
+boolMaybeParser maybe =
+  case maybe of
+    Just value -> value
+    Nothing -> False
 
-
+floatMaybeParser maybe =
+  case maybe of
+    Just value -> value
+    Nothing -> 0
+    
 {- ** Animation Functions ** -}
 -- Old exit button animation function
 btnFadeIn : Float -> Float
@@ -326,7 +337,7 @@ panel bgImg panelType =
       |> addOutline (solid (1 / panelSize)) black )
   :: [ line (2.4, 3.56) (-2.4, 3.56) 
          |> outlined (solid (0.15 / panelSize)) black
-         |> scale panelSize 
+         |> scale panelSize  
      , roundedRect 3.75 0.05 1
          |> filled black
          |> scale panelSize
@@ -656,6 +667,104 @@ goHomeBtn model isExitBtn =
       |> addOutline (solid 0.4) black
       |> scale (1.1)
 
+goStageMenu model = 
+  [ [ rect 192 128
+        |> filled black
+        |> makeTransparent 0.7
+    , roundedRect 90 40 1
+        |> filled white
+        |> addOutline (solid 1) boxClr
+    , text "Level Complete!"
+        |> centered
+        |> customFont titleFont
+        |> filled (second titleClr)
+        |> scale 0.475
+        |> move (0 + 0.25, 10 - 0.25)                
+    , text "Level Complete!"
+        |> centered
+        |> customFont titleFont
+        |> filled (first titleClr)
+        |> scale 0.475
+        |> move (0, 10)
+    , text ("Clear " ++ (timerFormat model.gameTime))
+        |> centered
+        |> customFont titleFont
+        |> filled black
+        |> scale 0.4
+        |> move (0, 3) ]
+      |> group
+      |> notifyMouseUp (ReleaseClick 5)
+  , if any (\x -> x == model.gameModel.level) [mediumStartIdx - 1, hardStartIdx - 1, 16] then
+      goStageBtn model True
+        |> move (0, -7.5)
+        |> notifyTap CloseGoStageMenu
+        |> notifyEnter (HoverGoStageBtn 1)
+        |> notifyLeave LeaveGoStageBtn
+        |> notifyMouseDown (ClickGoStageBtn 1)
+    else
+      [ goStageBtn model False
+          |> move (18, -7.5)
+          |> notifyTap ProceedGoStageMenu
+          |> notifyEnter (HoverGoStageBtn 2)
+          |> notifyLeave LeaveGoStageBtn
+          |> notifyMouseDown (ClickGoStageBtn 2)
+      , goStageBtn model True
+          |> move (-18, -7.5)
+          |> notifyTap CloseGoStageMenu
+          |> notifyEnter (HoverGoStageBtn 1)
+          |> notifyLeave LeaveGoStageBtn
+          |> notifyMouseDown (ClickGoStageBtn 1) ]
+        |> group
+  ]
+    |> group
+
+goStageBtn model isExitBtn =     -- isExitBtn: False = Next Stage btn, True = Level Select btn
+  let
+    promptText = 
+      if isExitBtn then
+        "Level Select"
+      else
+        "Next Stage"
+  in
+    [ roundedRect 22.5 8 1
+        |> filled white
+    , ( case isExitBtn of
+          True ->
+            roundedRect 24 9 1
+              |> (if model.click == ClickGoStageNext then
+                    filled clickClr
+                  else
+                    filled hoverClr )
+              |> ( if model.click == ClickGoStageNext then
+                     makeTransparent 1
+                   else if model.hoverGoStageBack then
+                     makeTransparent (btnFadeIn model.hoverTime)
+                   else
+                     makeTransparent 0 )
+          False ->
+            roundedRect 24 9 1
+              |> (if model.click == ClickGoStageBack then
+                    filled clickClr
+                  else
+                    filled hoverClr )
+              |> ( if model.click == ClickGoStageBack then
+                     makeTransparent 1
+                   else if model.hoverGoStageNext then
+                     makeTransparent (btnFadeIn model.hoverTime)
+                   else
+                     makeTransparent 0 )
+      )
+    , text promptText
+        |> sansserif
+        |> centered
+        |> filled darkBlue
+        |> scale (0.3)
+        |> move (0, -1.25)
+    ]
+      |> group
+      |> addOutline (solid 0.4) black
+      |> scale (1.1)
+
 taskbar model =      -- NEW: 04/10/2023 (Copy the entire new taskbar code)
   let
     openingAniCheck = 
@@ -758,10 +867,83 @@ infoWindow model =
   else
     [] |> group
 
+timerFormat gameTime =
+  let
+    ms = 
+      if modBy 100 (round (gameTime * 100)) < 10 then
+        "0" ++ Debug.toString (modBy 100 (round (gameTime * 100)))
+      else
+         Debug.toString (modBy 100 (round (gameTime * 100)))    
+    sec = 
+      if modBy 60 (floor gameTime) < 10 then
+        "0" ++ Debug.toString (modBy 60 (floor gameTime))
+      else
+         Debug.toString (modBy 60 (floor gameTime))
+    min =
+      if modBy 60 (floor (gameTime / 60)) < 10 then
+        "0" ++ Debug.toString (modBy 60 (floor (gameTime / 60)))
+      else
+         Debug.toString (modBy 60 (floor (gameTime / 60)))    
+  in
+    "Time:  " ++ min ++ ":" ++ sec ++ ":" ++ ms
+
+timer timerText leftAlign =
+  [ text timerText
+      |> customFont titleFont
+      |> ( if leftAlign then
+             alignLeft
+           else
+             alignRight )
+      |> filled white
+      |> scale 0.38
+  ]
+      |> group
+
+infoBar model =
+  let 
+    bestTime =
+      case model.packSelect of
+        Easy -> 
+          floatMaybeParser (head (drop (model.gameModel.level) model.easyInfo.bestTimes))
+        Medium ->
+          floatMaybeParser (head (drop (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes))
+        Hard ->
+          floatMaybeParser (head (drop (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes))
+        _ -> 0
+    levelNum = 
+      case model.packSelect of
+        Easy ->
+          "Level E-" ++ (Debug.toString (model.gameModel.level + 1))
+        Medium ->
+          "Level M-" ++ (Debug.toString (model.gameModel.level + 1 - mediumStartIdx))
+        Hard ->
+          "Level H-" ++ (Debug.toString (model.gameModel.level + 1 - hardStartIdx)) 
+        _ -> "Level NULL"
+  in
+    [ roundedRect 195 17 10
+        |> filled panelTopClr
+        |> addOutline (solid 0.5) black
+        |> move (0, 61)
+    , timer (timerFormat model.gameTime) True
+        |> move (-90, 56)
+    , timer ("Best " ++ (timerFormat bestTime)) False
+        |> scale (0.9)
+        |> move (90, 56)  
+    , text levelNum
+        |> centered
+        |> bold
+        |> customFont titleFont
+        |> filled white        
+        |> scale (0.43)
+        |> move (0, 55.5)
+        
+    ]
+      |> group
+      |> move (0, 0.5)
 
 myShapes model =
   case model.winState of 
-    Opening ->    -- Will work on opening animation later
+    Opening ->    
       [ MTitle.myShapes model.mTitleModel
           |> group
           |> GraphicSVG.map MTitleScreen
@@ -775,7 +957,7 @@ myShapes model =
         ]
           |> group
           |> slideLeft model.openTime
-      , taskbar model
+      , taskbar model 
       , infoWindow model 
       ]
     Active ->
@@ -789,9 +971,9 @@ myShapes model =
           |> group
           |> notifyMouseUp (ReleaseClick 4)
           |> notifyLeave (ReleaseClick 5)
-      , panelCollision model
-      , taskbar model
-      , infoWindow model
+      , panelCollision model 
+      , taskbar model 
+      , infoWindow model 
       ]
     ClosingNext ->
       [ mainBgImg
@@ -799,10 +981,10 @@ myShapes model =
           |> subtract (title model)
       , backBtn model
           |> fadeOut model.exitTime
-      , title model
-      , border
-      , taskbar model
-      , infoWindow model
+      , title model 
+      , border  
+      , taskbar model 
+      , infoWindow model 
       ]
     ClosingExit ->
       [ MTitle.myShapes model.mTitleModel
@@ -831,9 +1013,11 @@ myShapes model =
                 |> group
                 |> scale 0.9
                 |> gameFadeIn model.easyModel.exitTime
-                |> GraphicSVG.map GameMsg                 
+                |> GraphicSVG.map GameMsg               
+          , infoBar model                     -- NEW: 04/11
+              |> gameFadeIn model.easyModel.exitTime      
           , taskbar model
-          , infoWindow model ]
+          , infoWindow model ]      
         else
           [ if model.goingHome then
               myShapes { model | winState = ShowingMTitle }
@@ -852,8 +1036,9 @@ myShapes model =
                 |> group
                 |> scale 0.9
                 |> GraphicSVG.map GameMsg 
-            , taskbar model
-            , infoWindow model ]
+          , infoBar model                     -- NEW: 04/11                
+          , taskbar model
+          , infoWindow model ]
         else --if model.easyModel.winState == ClosingExit then
           myShapes { model | winState = Active }
 
@@ -867,7 +1052,9 @@ myShapes model =
                 |> group
                 |> scale 0.9
                 |> gameFadeIn model.medModel.exitTime
-                |> GraphicSVG.map GameMsg                 
+                |> GraphicSVG.map GameMsg            
+          , infoBar model                     -- NEW: 04/11
+              |> gameFadeIn model.medModel.exitTime      
           , taskbar model
           , infoWindow model ]
         else
@@ -887,9 +1074,10 @@ myShapes model =
           [ Game.myShapes model.gameModel 
                 |> group
                 |> scale 0.9
-                |> GraphicSVG.map GameMsg 
-            , taskbar model
-            , infoWindow model ]
+                |> GraphicSVG.map GameMsg
+          , infoBar model                     -- NEW: 04/11                
+          , taskbar model
+          , infoWindow model ]
         else --if model.medModel.winState == ClosingExit then
           myShapes { model | winState = Active }
     ShowingHard ->    
@@ -902,7 +1090,9 @@ myShapes model =
                 |> group
                 |> scale 0.9
                 |> gameFadeIn model.hardModel.exitTime
-                |> GraphicSVG.map GameMsg                 
+                |> GraphicSVG.map GameMsg        
+          , infoBar model                     -- NEW: 04/11
+              |> gameFadeIn model.hardModel.exitTime
           , taskbar model
           , infoWindow model ]
         else
@@ -923,11 +1113,12 @@ myShapes model =
                 |> group
                 |> scale 0.9
                 |> GraphicSVG.map GameMsg 
-            , taskbar model
-            , infoWindow model ]
+          , infoBar model                     -- NEW: 04/11                
+          , taskbar model
+          , infoWindow model ]
         else --if model.hardModel.winState == ClosingExit then
           myShapes { model | winState = Active }
-    PlayingGame ->
+    PlayingGame ->               -- NEW CONTENT: 04/11
       case model.packSelect of
         Easy ->
           if model.easyModel.exitTime > 2 then
@@ -937,10 +1128,16 @@ myShapes model =
                 |> GraphicSVG.map GameMsg 
             , taskbar model
             , infoWindow model
+            , ( if model.showingGoStage then    -- NEW: 04/11   
+                  goStageMenu model
+                else 
+                  rect 0 0 |> ghost )
+            , infoBar model                     -- NEW: 04/11       
             , if model.showingGoHome then
                 goHomeMenu model
               else
-                rect 0 0 |> ghost ]      
+                rect 0 0 |> ghost     
+            ]                  
           else
             myShapes { model | winState = ShowingEasy }
         Medium ->
@@ -951,10 +1148,16 @@ myShapes model =
                 |> GraphicSVG.map GameMsg 
             , taskbar model
             , infoWindow model
+            , ( if model.showingGoStage then    -- NEW: 04/11   
+                  goStageMenu model
+                else 
+                  rect 0 0 |> ghost )
+            , infoBar model                     -- NEW: 04/11                
             , if model.showingGoHome then
                 goHomeMenu model
               else
-                rect 0 0 |> ghost ]      
+                rect 0 0 |> ghost            
+            ]                   
           else
             myShapes { model | winState = ShowingMed }
         Hard ->
@@ -965,10 +1168,16 @@ myShapes model =
                 |> GraphicSVG.map GameMsg 
             , taskbar model
             , infoWindow model
+            , ( if model.showingGoStage then    -- NEW: 04/11   
+                  goStageMenu model
+                else 
+                  rect 0 0 |> ghost )
+            , infoBar model                     -- NEW: 04/11                
             , if model.showingGoHome then
                 goHomeMenu model
               else
-                rect 0 0 |> ghost ]      
+                rect 0 0 |> ghost            
+            ]      
           else
             myShapes { model | winState = ShowingHard }
         _ ->
@@ -1021,13 +1230,22 @@ type Msg = Tick Float GetKeyState
          | CloseGoHomeMenu
          | HoverGoHomeBtn Int
          | ClickGoHomeBtn Int
-         | LeaveGoHomeBtn         
+         | LeaveGoHomeBtn
+         -- NEW: 04/11
+         | ProceedGoStageMenu
+         | CloseGoStageMenu
+         | HoverGoStageBtn Int
+         | ClickGoStageBtn Int
+         | LeaveGoStageBtn
 
 
 -- Leftover code from exit button, too lazy to change 
 type ClickState = ClickExit
                 | ClickGoHomeExit 
                 | ClickGoHomeBack
+                -- NEW: 04/11
+                | ClickGoStageNext 
+                | ClickGoStageBack                
                 | ClickNone
 
 type WinState = Opening 
@@ -1078,10 +1296,17 @@ type alias Model = { time : Float
                    , goingHome : Bool
                    , infoBtnHovered : Bool
                    , homeBtnHovered : Bool
-                   , gameModel : Game.Model                   
+                   , gameModel : Game.Model    
                    , showingGoHome : Bool 
                    , hoverGoHomeExit : Bool
-                   , hoverGoHomeBack : Bool }                         
+                   , hoverGoHomeBack : Bool 
+                   , gameTime : Float
+                   , lvlProgress : Bool 
+                   -- NEW: 04/11
+                   , showingGoStage : Bool       
+                   , hoverGoStageNext : Bool
+                   , hoverGoStageBack : Bool 
+                   , goStageTime : Float }                    
 
 type alias PanelInfo = { cleared : Int 
                        , total : Int }
@@ -1234,18 +1459,116 @@ update msg model = case msg of
                                        else 
                                          model.winState
                                    , exitTime = model.exitTime + (t - model.time) }                    
-                         
-                         PlayingGame ->
+                         PlayingGame ->    -- NEW: 04/10/2023 (Replace entire PlayingGame Msg here in Mac ver.)
                            { model | time = t
-                                   , hoverTime = model.hoverTime + (t - model.time)  
+                                   , hoverTime = model.hoverTime + (t - model.time)  -- NEW: 04/10/2023
                                    , shrinkTime = 0
                                    , exitTime = model.exitTime + (t - model.time)
                                    , gameModel = Game.update (Game.Tick t k) model.gameModel 
+                                   , goStageTime = 
+                                       if model.gameModel.levelComplete then
+                                         model.goStageTime + (t - model.time)
+                                       else
+                                         0
+                                   , showingGoStage = 
+                                       if model.gameModel.levelComplete && (model.goStageTime > 1) then 
+                                         True
+                                       else 
+                                         False
                                    , infoModel =
                                       if model.showingInfo then
                                         Info.update (Info.Tick t k) model.infoModel
                                       else
-                                        model.infoModel }
+                                        model.infoModel
+                                   , gameTime = 
+                                       if model.gameModel.levelComplete then
+                                         model.gameTime
+                                       else
+                                         model.gameTime + (t - model.time)
+                                   , easyInfo =                 -- NEW CONTENT 04/11
+                                       if model.gameModel.levelComplete && model.packSelect == Easy then
+                                         if model.lvlProgress then
+                                           { cleared = model.easyInfo.cleared
+                                           , total = model.easyInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level) model.easyInfo.bestTimes))) == 0 then
+                                                 (take model.gameModel.level model.easyInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level + 1) model.easyInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level) model.easyInfo.bestTimes))) then
+                                                 (take model.gameModel.level model.easyInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level + 1) model.easyInfo.bestTimes)
+                                               else
+                                                 model.easyInfo.bestTimes
+                                           }
+                                         else
+                                           { cleared = model.easyInfo.cleared + 1
+                                           , total = model.easyInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level) model.easyInfo.bestTimes))) == 0 then
+                                                 (take model.gameModel.level model.easyInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level + 1) model.easyInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level) model.easyInfo.bestTimes))) then
+                                                 (take model.gameModel.level model.easyInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level + 1) model.easyInfo.bestTimes)
+                                               else
+                                                 model.easyInfo.bestTimes
+                                           }
+                                       else
+                                         model.easyInfo
+                                   , medInfo =                 -- NEW CONTENT 04/11
+                                       if model.gameModel.levelComplete && model.packSelect == Medium then
+                                         if model.lvlProgress then
+                                           { cleared = model.medInfo.cleared  
+                                           , total = model.medInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes))) == 0 then
+                                                 (take (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - mediumStartIdx + 1) model.medInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes))) then
+                                                 (take (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - mediumStartIdx + 1) model.medInfo.bestTimes)
+                                               else
+                                                 model.medInfo.bestTimes
+                                           }
+                                         else
+                                           { cleared = model.medInfo.cleared + 1
+                                           , total = model.medInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes))) == 0 then
+                                                 (take (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - mediumStartIdx + 1) model.medInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes))) then
+                                                 (take (model.gameModel.level - mediumStartIdx) model.medInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - mediumStartIdx + 1) model.medInfo.bestTimes)
+                                               else
+                                                 model.medInfo.bestTimes
+                                           }
+                                       else
+                                         model.medInfo
+                                   , hardInfo =                 -- NEW CONTENT 04/11
+                                       if model.gameModel.levelComplete && model.packSelect == Hard then
+                                         if model.lvlProgress then
+                                           { cleared = model.hardInfo.cleared
+                                           , total = model.hardInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes))) == 0 then
+                                                 (take (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - hardStartIdx + 1) model.hardInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes))) then
+                                                 (take (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - hardStartIdx + 1) model.hardInfo.bestTimes)
+                                               else
+                                                 model.hardInfo.bestTimes
+                                           }
+                                         else
+                                           { cleared = model.hardInfo.cleared + 1
+                                           , total = model.hardInfo.total 
+                                           , bestTimes = 
+                                               if (floatMaybeParser (head (drop (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes))) == 0 then
+                                                 (take (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - hardStartIdx + 1) model.hardInfo.bestTimes)
+                                               else if model.gameTime < (floatMaybeParser (head (drop (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes))) then
+                                                 (take (model.gameModel.level - hardStartIdx) model.hardInfo.bestTimes) ++ [model.gameTime] ++ (drop (model.gameModel.level - hardStartIdx + 1) model.hardInfo.bestTimes)
+                                               else
+                                                 model.hardInfo.bestTimes
+                                           }
+                                       else
+                                         model.hardInfo
+                                   , lvlProgress = 
+                                       if model.gameModel.levelComplete && model.lvlProgress == False then
+                                         True
+                                       else
+                                         model.lvlProgress
+                                   }
                          
                          ClosingExit ->
                            { model | time = t
@@ -1425,21 +1748,27 @@ update msg model = case msg of
                        case easyMsg of
                          (E.EnterLevel lvl) ->
                            { model | easyModel = E.update easyMsg model.easyModel
-                                   , gameModel = Game.update (Game.Level (lvl-1)) model.gameModel } --levels are 0 indexed in Matrix and 1 indexed in Easy
+                                   , gameModel = Game.update (Game.Level (lvl-1)) model.gameModel  --levels are 0 indexed in Matrix and 1 indexed in Easy
+                                   , lvlProgress = boolMaybeParser (head (drop (lvl - 1) model.gameModel.completedLevels))
+                                   , gameTime = 0 }
                          _ ->
                            { model | easyModel = E.update easyMsg model.easyModel }
                      MedLevels medMsg ->
                        case medMsg of
                          (M.EnterLevel lvl) ->
                            { model | medModel = M.update medMsg model.medModel
-                                   , gameModel = Game.update (Game.Level (mediumStartIdx + lvl - 1)) model.gameModel }
+                                   , gameModel = Game.update (Game.Level (mediumStartIdx + lvl - 1)) model.gameModel 
+                                   , lvlProgress = boolMaybeParser (head (drop (mediumStartIdx + lvl - 1) model.gameModel.completedLevels))
+                                   , gameTime = 0 }
                          _ ->
                            { model | medModel = M.update medMsg model.medModel }
                      HardLevels hardMsg ->
                        case hardMsg of 
                          (H.EnterLevel lvl) ->
                            { model | hardModel = H.update hardMsg model.hardModel
-                                   , gameModel = Game.update (Game.Level (hardStartIdx + lvl - 1)) model.gameModel }
+                                   , gameModel = Game.update (Game.Level (hardStartIdx + lvl - 1)) model.gameModel
+                                   , lvlProgress = boolMaybeParser (head (drop (hardStartIdx + lvl - 1) model.gameModel.completedLevels))
+                                   , gameTime = 0 }
                          _ ->
                            { model | hardModel = H.update hardMsg model.hardModel }
                      ShowInfo ->
@@ -1481,7 +1810,7 @@ update msg model = case msg of
                                    , mTitleModel = MTitle.init 
                                    , goingHome = True 
                                    , showingGoHome = False    
-                                   , click = ClickNone }  
+                                   , click = ClickNone }      
                      HoverHomeBtn ->
                        { model | homeBtnHovered = True }
                      UnhoverHomeBtn ->
@@ -1531,7 +1860,78 @@ update msg model = case msg of
                            model           
                      LeaveGoHomeBtn ->
                        { model | hoverGoHomeBack = False 
-                               , hoverGoHomeExit = False }      
+                               , hoverGoHomeExit = False }
+                     -- NEW: 04/11
+                     ProceedGoStageMenu ->                 -- Not super clear from name, but this is the msg for when you click Next Level
+                       { model | showingGoStage = False
+                               , gameModel = 
+                                   if any (\x -> x == model.gameModel.level) [mediumStartIdx - 1, hardStartIdx - 1] then
+                                     model.gameModel
+                                   else
+                                     Game.update (Game.Level (model.gameModel.level + 1)) model.gameModel                                     
+                               , goStageTime = 0 
+                               , gameTime = 0 
+                               , click = ClickNone }
+                     CloseGoStageMenu ->
+                       let
+                         eInit = E.init
+                         mInit = M.init
+                         hInit = H.init
+                       in
+                       { model | showingGoStage = False
+                               , winState = -- Active
+                                   case model.packSelect of
+                                     Easy -> ShowingEasy
+                                     Medium -> ShowingMed
+                                     Hard -> ShowingHard
+                                     _ -> Active         -- Just in case something wrong happens, for debugging purposes
+                               , easyModel = 
+                                   if model.packSelect == Easy then
+                                     { eInit | levelDisplay = E.Easy (model.gameModel.level + 1)}
+                                   else
+                                     model.easyModel
+                               , medModel = 
+                                   if model.packSelect == Medium then
+                                     { mInit | levelDisplay = M.Medium (model.gameModel.level + 1 - mediumStartIdx)}
+                                   else
+                                     model.medModel                               
+                               , hardModel = 
+                                   if model.packSelect == Hard then
+                                     { hInit | levelDisplay = H.Hard (model.gameModel.level + 1 - hardStartIdx)}
+                                   else
+                                     model.hardModel                               
+                               , click = ClickNone }
+                     HoverGoStageBtn btnNum ->
+                       if model.click == ClickNone then
+                         case btnNum of
+                           1 ->        -- Back to Level Select btn
+                             { model | hoverGoStageBack = True
+                                     , hoverGoStageNext = False
+                                     , hoverTime = 0 }
+                           2 ->        -- Next Level btn
+                             { model | hoverGoStageNext = True 
+                                     , hoverGoStageBack = False
+                                     , hoverTime = 0 }
+                           _ ->
+                             model
+                       else
+                         model
+                     
+                     ClickGoStageBtn btnNum ->
+                       case btnNum of 
+                         1 ->
+                           { model | click = ClickGoStageNext
+                                   , hoverGoStageBack = False
+                                   , hoverGoStageNext = False }                         
+                         2 ->
+                           { model | click = ClickGoStageBack
+                                   , hoverGoStageBack = False
+                                   , hoverGoStageNext = False }    
+                         _ ->
+                           model           
+                     LeaveGoStageBtn ->
+                       { model | hoverGoStageBack = False
+                               , hoverGoStageNext = False }                               
                   
                        
 init = { time = 0     
@@ -1546,11 +1946,14 @@ init = { time = 0
        , medState = None
        , hardState = None
        , easyInfo = { cleared = 0 
-                    , total = 11 }
+                    , total = 11 
+                    , bestTimes = repeat E.numLevels 0 }
        , medInfo = { cleared = 0 
-                   , total = 4 }
+                   , total = 4 
+                   , bestTimes = repeat M.numLevels 0 }
        , hardInfo = { cleared = 0 
-                    , total = 2 }
+                    , total = 2 
+                    , bestTimes = repeat H.numLevels 0 }
        , easyModel = E.init
        , easyTime = 0
        , medModel = M.init
@@ -1566,11 +1969,18 @@ init = { time = 0
        , goingHome = False
        , infoBtnHovered = False
        , homeBtnHovered = False 
-       , gameModel = Game.init
+       , gameModel = Game.init     
        , showingGoHome = False 
        , hoverGoHomeExit = False 
-       , hoverGoHomeBack = False }   
+       , hoverGoHomeBack = False 
+       , gameTime = 0             -- Actual timerFormat running during gameplay
+       , lvlProgress = False     -- For checking if current level has already been completed yet 
+       -- NEW: 04/11
+       , showingGoStage = False 
+       , hoverGoStageNext = False 
+       , hoverGoStageBack = False 
+       , goStageTime = 0 }
 
-main = gameApp Tick { model = init, view = view, update = update, title = "MM | Select a Level Pack" }
+main = gameApp Tick { model = init, view = view, update = update, title = "Matrix Mindbusters (Mac)" }
 
 view model = collage 192 128 (myShapes model)

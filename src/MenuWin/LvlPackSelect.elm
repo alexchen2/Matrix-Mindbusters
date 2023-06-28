@@ -1,7 +1,9 @@
 module MenuWin.LvlPackSelect exposing (..)
 
+import Html exposing (img, div, span)
+import Html.Attributes exposing (style, width, src, height)
 import Tuple exposing (first, second)
-import List exposing (drop, head, take, repeat, any, all)
+import List exposing (any, all, take, drop, head, repeat)
 import String exposing (split)
 
 -- MacCASOutreach imports
@@ -340,7 +342,8 @@ panel bgImg panelType =           -- panelType: 1 = Easy, 2 = Medium, 3 = Hard
      , roundedRect 3.75 0.05 1
          |> filled black
          |> scale panelSize
-         |> move (0, -24) ]
+         |> move (0, -24)
+    ]
     |> group
     |> move (0, -5)   -- just some more minute adjustments
 
@@ -692,7 +695,7 @@ goStageMenu model =
         |> move (0, 3) ]
       |> group
       |> notifyMouseUp (ReleaseClick 5)
-  , if any (\x -> x == model.gameModel.level) [mediumStartIdx - 1, hardStartIdx - 1] then
+  , if any (\x -> x == model.gameModel.level) [mediumStartIdx - 1, hardStartIdx - 1, 16] then
       goStageBtn model True
         |> move (0, -7.5)
         |> notifyTap CloseGoStageMenu
@@ -1979,6 +1982,6 @@ init = { time = 0
        , hoverGoStageBack = False 
        , goStageTime = 0 }
 
-main = gameApp Tick { model = init, view = view, update = update, title = "MM | Select a Level Pack" }
+main = gameApp Tick { model = init, view = view, update = update, title = "Matrix Mindbusters (Windows)" }
 
 view model = collage 192 128 (myShapes model)
