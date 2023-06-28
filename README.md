@@ -13,21 +13,21 @@ Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armst
 - Includes *Info* and *About* submenus to refresh the player's knowledge on necessary linear algebra knowledge while acquainting them with the controls and purpose behind the program
 - Contains a rudimentary timer score system to allow the user to note how long they take to complete each level, while encouraging them to return to prior cleared stages to improve their time and review past concepts
 
-## Current Bugs:
+## Current Bugs
 - Best time scores are not displayed properly on the individual level select screens. The score values, however, are still registered and appear on the top taskbar during gameplay when in a level.
 - Generated HTML files from the source code lag slightly when navigating through the level select menus.
 
-## Required Dependencies:
+## Required Dependencies
 - Elm (get it [here](https://guide.elm-lang.org/install/elm.html)!)
 - MacCASOutreach's GraphicSVG v7.2.0 \
   (run `elm install MacCASOutreach/graphicsvg` within terminal)
 
-## Clone Repo:
+## Clone Repo
 ```
 git clone https://github.com/alexchen2/Matrix-Mindbusters.git
 ```
 
-## Compile Instructions:
+## Compile Instructions
 ```bash
 elm make .\src\MainWin.elm
 ```
