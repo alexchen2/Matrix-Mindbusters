@@ -7,6 +7,7 @@ Test out the program live here: \
   
 Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armstrong, Norah Muqbel, and Lu Yan.
 <!--  Note to other collaborators - feel free to link in your Github profiles here if you'd like or edit anything here if I accidentally mispelled your name -->
+____________
 
 ## Features
 - Contains three level packs of varying difficulties—Easy, Medium, and Hard—each focused on either introducing the player to a new matrix transformation or testing their knowledge through a combination of concepts
