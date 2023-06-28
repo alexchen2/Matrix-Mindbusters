@@ -18,9 +18,9 @@ Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armst
 - Generated HTML files from the source code lag slightly when navigating through the level select menus.
 
 ## Required Dependencies
-- Elm (get it [here](https://guide.elm-lang.org/install/elm.html)!)
-- MacCASOutreach's GraphicSVG v7.2.0 \
-  (run `elm install MacCASOutreach/graphicsvg` within terminal)
+- [ ] Elm (get it [here](https://guide.elm-lang.org/install/elm.html)!)
+- [ ] MacCASOutreach's GraphicSVG v7.2.0 \
+  (run `elm install MacCASOutreach/graphicsvg` in terminal)
 
 ## Clone Repo
 ```
@@ -28,11 +28,12 @@ git clone https://github.com/alexchen2/Matrix-Mindbusters.git
 ```
 
 ## Compile Instructions
+Windows:
 ```bash
 elm make .\src\MainWin.elm
 ```
-or:
+
+Mac/Linux:
 ```bash
 elm make .\src\MainMac.elm
 ```
-depending on your OS.
