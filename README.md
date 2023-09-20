@@ -41,4 +41,4 @@ elm make .\src\MainMac.elm
   
 If any parsing errors pop up in your IDE if opening up in a code editor (e.g. VS Code), just ignore them; the code is formatted properly and has been tested to work properly.   
   
-The command will generate an `.html` file, which you can open in your browser. Ensure that you have as few tabs open as possible when running the file, in order to reduce lag in the program.
+The command will generate an `.html` file, which you can open in your browser. Ensure that you have as few tabs open as possible when running the file in order to reduce lag in the program.
