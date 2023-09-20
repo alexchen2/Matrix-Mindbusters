@@ -38,3 +38,5 @@ Mac/Linux:
 ```bash
 elm make .\src\MainMac.elm
 ```
+
+The command will generate an `.html` file, which you can open in your browser. Ensure that you have as few tabs open as possible when running the file, in order to reduce lag in the program.
