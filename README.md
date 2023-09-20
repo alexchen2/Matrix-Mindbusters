@@ -5,7 +5,7 @@ Test out the program live here: \
 &emsp;[Windows version](https://cs1xd3.online/ShowModulePublish?modulePublishId=14cdfd44-cf3c-4449-a001-38996b7c9f74) \
 &emsp;[Mac/Linux version](https://cs1xd3.online/ShowModulePublish?modulePublishId=406a7990-87bc-4e22-9168-83a9a135ee39)
   
-Created by [Alex Chen](https://github.com/alexchen2), Loic Sinclair, Jacob Armstrong, Norah Muqbel, and Lu Yan.
+Created by [Alex Chen](https://github.com/alexchen2), [Loic Sinclair](https://github.com/sincll), Jacob Armstrong, Norah Muqbel, and Lu Yan.
 <!--  Note to other collaborators - feel free to link in your Github profiles here if you'd like or edit anything here if I accidentally mispelled your name -->
 ____________
 
