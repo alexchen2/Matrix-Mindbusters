@@ -2,8 +2,8 @@
 Matrix Mindbusters is an educational game aimed to help undergraduate Math & Engineering students learn matrix transformations. Written in Elm, the program was created for a summative assignment in McMaster's computer science undergraduate course COMPSCI 1XD3, and it utilizes MacCAS Outreach's GraphicSVG library to render images and vector shapes (written by McMaster students and Dr. Christopher Anand). During gameplay, a two-by-two/-three matrix is visually represented on a Cartesian grid system through a two dimensional diagram, and the user is tasked with altering the matrix's values to manipulate the shape into taking on a specific formation.
 
 Test out the program live here: \
-&emsp;[Windows version](https://cs1xd3.online/ShowModulePublish?modulePublishId=14cdfd44-cf3c-4449-a001-38996b7c9f74) \
-&emsp;[Mac/Linux version](https://cs1xd3.online/ShowModulePublish?modulePublishId=406a7990-87bc-4e22-9168-83a9a135ee39)
+&emsp;[Windows version](https://stabl.rocks/ShowModulePublish?modulePublishId=14cdfd44-cf3c-4449-a001-38996b7c9f74) \
+&emsp;[Mac/Linux version](https://stabl.rocks/ShowModulePublish?modulePublishId=406a7990-87bc-4e22-9168-83a9a135ee39)
   
 Created by [Alex Chen](https://github.com/alexchen2), [Loic Sinclair](https://github.com/sincll), Jacob Armstrong, Norah Muqbel, and Lu Yan.
 <!--  Note to other collaborators - feel free to link in your Github profiles here if you'd like or edit anything here if I accidentally mispelled your name -->
